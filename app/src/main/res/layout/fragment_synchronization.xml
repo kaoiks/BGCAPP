@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#333947"
+    android:orientation="vertical"
+
+    >
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="164dp"
+        android:text="Ostatnia synchronizacja"
+        android:textColor="@color/white"
+        android:textSize="32dp"
+
+
+        >
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+
+        android:text="01-01-2000 00:00:00"
+        android:textColor="@color/white"
+        android:textSize="25dp"
+
+        >
+
+    </TextView>
+
+    <Button
+        android:id="@+id/syncStartButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+
+
+        android:layout_marginTop="88dp"
+        android:text="Synchronizuj" />
+
+
+</LinearLayout>
