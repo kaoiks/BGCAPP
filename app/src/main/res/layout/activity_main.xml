@@ -47,14 +47,15 @@
 
 
             <Button
+                android:id="@+id/gameListButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/transparent_border"
                 android:backgroundTint="#878787"
+
                 android:text="Games: 0"
 
                 android:textAlignment="textStart"
-
                 android:textSize="90px">
 
 
@@ -62,16 +63,15 @@
 
 
             <Button
+                android:id="@+id/extensionListButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAlignment="textStart"
-                android:text="Expansions: 0"
-                android:textSize="90px"
                 android:background="@drawable/transparent_border"
+                android:text="Expansions: 0"
+                android:textAlignment="textStart"
 
 
-                >
-            </Button>
+                android:textSize="90px"></Button>
 
 
 
