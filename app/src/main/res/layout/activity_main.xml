@@ -80,15 +80,39 @@
 
         </TableLayout>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="60dp"
+            android:text="Last synchronization"
+            android:textColor="@color/white"
+            android:textSize="32dp"
 
+
+            >
+
+        </TextView>
+
+        <TextView
+            android:id="@+id/dateLastSyncMain"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="01-01-2000 00:00:00"
+            android:textColor="@color/white"
+            android:textSize="25dp"
+            >
+
+        </TextView>
         <Button
 
             android:id="@+id/syncButton"
-            android:layout_width="290dp"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="50dp"
-            android:text="Synchronizacja"
+            android:text="Synchronization"
 
             android:textSize="25dp">
 
@@ -96,11 +120,11 @@
 
         <Button
             android:id="@+id/cleanButton"
-            android:layout_width="290dp"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="10dp"
-            android:text="Wyczyść dane"
+            android:text="Clean data"
 
             android:textSize="25dp">
 

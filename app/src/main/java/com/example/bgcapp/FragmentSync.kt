@@ -2,7 +2,9 @@ package com.example.bgcapp
 
 import android.app.AlertDialog
 import android.content.Context
+import android.os.AsyncTask
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -30,6 +32,8 @@ class FragmentSync: Fragment() {
 
     lateinit var syncButton: Button
     lateinit var lastSync: TextView
+    private var task = loadGamesExtensionsTask()
+
     override fun getContext(): Context? {
         return super.getContext()
     }
@@ -51,11 +55,13 @@ class FragmentSync: Fragment() {
 
         syncButton.setOnClickListener{
 
-            var response = loadUserDataGames()
+            task.execute()
+
+
+            //var response2 = loadUserDataExtensions()
 
 
 
-            Toast.makeText(activity,"Synchronization completed",Toast.LENGTH_SHORT).show()
         }
 
         return view
@@ -70,176 +76,54 @@ class FragmentSync: Fragment() {
 
     }
 
-    fun loadUserDataGames(): String {
+
+    private  inner class loadGamesExtensionsTask: AsyncTask<String, Int, String>(){
+
+        override fun onPreExecute() {
+            super.onPreExecute()
 
 
-        var games :MutableList<Game> = mutableListOf()
+        }
 
+        override fun doInBackground(vararg p0: String?): String {
 
+            //syncButton.text = "SYNCHRONIZING"
+            publishProgress(0)
 
-        val url = URL("https://boardgamegeek.com/xmlapi2/collection?username=Minmyska&stats=1&subtype=boardgame&excludesubtype=boardgameexpansion")
-        var responseText = ""
+            WebDataLoader(requireContext()).loadUserDataGames()
+            publishProgress(5)
+            WebDataLoader(requireContext()).loadUserDataExtensions()
 
-        try {
+            publishProgress(10)
 
-            val connection = url.openConnection()
-            Log.e("APPLICATION","LOADING DATA")
-            connection.connect()
-            val lengthOfFile = connection.contentLength
-            val isStream= url.openStream()
+            return "Finished"
+        }
 
-            //val catalogPath =  Paths.get("").toAbsolutePath().toString()
-            val testDirectory = File(  "${context?.filesDir}/XML")
-            if (!testDirectory.exists()) testDirectory.mkdir()
+        override fun onProgressUpdate(vararg values: Int?) {
+            super.onProgressUpdate(*values)
 
-            val fos = FileOutputStream( "$testDirectory/userData.xml")
-            val data = ByteArray ( 1024)
-            var count=0
-            var total: Long = 0
-            var progress = 0
-            count = isStream.read(data)
-            while (count != -1) {
-                total += count.toLong()
-                val progress_temp = total.toInt() *100/ lengthOfFile
-                if (progress_temp %10 == 0 && progress != progress_temp) {
-                    progress = progress_temp
-                }
-                fos.write(data,  0,count)
-                count =  isStream.read(data)
+            if (values[0] == 0) {
+                syncButton.text = "SYNCHRONIZING"
             }
-            isStream.close()
-            fos.close()
-            Log.e("APPLICATION","DATA LOADED TO FILE")
-        } catch (e: MalformedURLException) {
-            return "Zły URL"
-        }
-        catch (e: FileNotFoundException) {
-            return "Brak pliku"
-        }
-        catch (e: IOException) {
-            return "Wyjątek 10"
-        }
+            else if (values[0] == 5) {
 
-        val catalogPath =  Paths.get("").toAbsolutePath().toString()
-        val testDirectory = File(  "$catalogPath/XML")
-
-        val fileName = "userData.xml"
-        val path = context?.filesDir
-        val inDir = File(path,"XML")
-
-        //val fos = FileOutputStream( "$testDirectory/userData.xml")
-        val file = File(inDir,fileName)
-
-
-
-        val xmlDoc: Document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file)
-
-
-        xmlDoc.documentElement.normalize()
-
-        val items: NodeList = xmlDoc.getElementsByTagName("item")
-
-        for (i in 0 until items.length){
-            val item : Node = items.item(i)
-            if (item.nodeType == Node.ELEMENT_NODE){
-                val elem = item as Element
-                val children = elem.childNodes
-
-
-                var bggId: Long = 0
-                var title = "N/A"
-                var originalTitle = "N/A"
-                var releaseYear: Int = 0
-                var thumbnail = ""
-                var ranking: Int = 0
-
-                bggId = elem.getAttribute("objectid").toLong()
-                val rankingTags =  elem.getElementsByTagName("rank")
-
-                for (j in 0 until children.length){
-                    val node = children.item(j)
-                    if (node is Element){
-                        when (node.nodeName){
-
-                            "yearpublished" -> {
-                                releaseYear = node.textContent.toInt()
-                            }
-                            "name" -> {
-                                originalTitle = node.textContent.toString()
-                            }
-                            "thumbnail" -> {
-                                thumbnail = node.textContent.toString()
-                            }
-
-
-                        }
-
-                    }
-                }
-
-                for (j in 0 until rankingTags.length) {
-                    val item2: Node = rankingTags.item(j)
-                    if (item2.nodeType == Node.ELEMENT_NODE) {
-                        val elem2 = item2 as Element
-
-                        if (elem2.getAttribute("friendlyname") == "Board Game Rank") {
-
-                            if (elem2.getAttribute("value").toString() == "Not Ranked") {
-                                ranking = 0
-                            } else {
-                                ranking = elem2.getAttribute("value").toInt()
-                            }
-                        }
-
-                    }
-                }
-                val game = Game(title,originalTitle,releaseYear,bggId,ranking,thumbnail)
-                games.add(game)
-
+                Toast.makeText(activity,"Synchronizing expansions",Toast.LENGTH_SHORT).show()
             }
+            else if (values[0] == 10) {
 
+                val dbHandler = MyDBHandler( requireContext() ,null,null,1)
+                lastSync.text = dbHandler.checkSync()
+                dbHandler.close()
+            }
         }
 
-        val dbHandler = MyDBHandler( requireContext() ,null,null,1)
-
-        val gameIds :MutableList<Long> = mutableListOf()
-        for (game in games){
-            if (gameIds.contains(game.bggId)) {continue}
-            gameIds.add(game.bggId)
-            if(dbHandler.findGame(game.bggId) == null){
-
-                dbHandler.addGame(game)
-            }
-            else{
-                dbHandler.deleteGame(game.bggId)
-                dbHandler.addGame(game)
-            }
-
+        override fun onPostExecute(result: String?) {
+            super.onPostExecute(result)
+            syncButton.text = "SYNCHRONIZE"
+            Toast.makeText(activity,"Synchronization completed",Toast.LENGTH_SHORT).show()
         }
 
-        dbHandler.updateSync()
-
-        lastSync.text = dbHandler.checkSync()
-
-        //Thread.sleep(10000)
-        //dbHandler.close()
-
-//        for (game in games){
-//            if(dbHandler.findGame(game.bggId) != null){
-//                dbHandler.deleteGame(game.bggId)
-//            }
-//
-//        }
-
-
-        return ""
     }
-
-
-
-
-
-
 
 
 

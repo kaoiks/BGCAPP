@@ -101,7 +101,7 @@ class MyDBHandler(context: Context, name: String?, factory: SQLiteDatabase. Curs
 
             values = ContentValues()
             values.put(COLUMN_ID, game.bggId)
-            val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+            val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
             val currentDate = sdf.format(Date())
 
 
@@ -114,8 +114,54 @@ class MyDBHandler(context: Context, name: String?, factory: SQLiteDatabase. Curs
         catch (e: Exception){
 
         }
+    }
+
+    fun addExpansion(game:Game){
+        try {
+            var values = ContentValues()
+            values.put(COLUMN_ID, game.bggId)
+            values.put(COLUMN_TITLE, game.title)
+            values.put(COLUMN_OGTITLE, game.originalTitle)
+            values.put(COLUMN_YEAR, game.releaseYear)
+            values.put(COLUMN_RANKING, game.rankingPosition)
+            values.put(COLUMN_THUMBNAIL, game.thumbnail)
+            val db = this.writableDatabase
+            db.insert(TABLE_EXTENSIONS, null, values)
+
+
+        }
+        catch (e: Exception){
+
+        }
+    }
+
+    fun getHistoryofGame(id: Long):MutableList<String>{
+        var count = 0
+        val query = "SELECT date, $COLUMN_RANKING FROM $TABLE_GAMES_RANKING WHERE $COLUMN_ID = $id ORDER BY date desc"
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query, null)
+        val rankingList: MutableList<String> = mutableListOf()
+        if (cursor.moveToFirst()){
+            val date = cursor.getString(0)
+            val rankingPosition = cursor.getInt(1)
+            rankingList.add("$date%$rankingPosition")
+            //game = Game(title,originalTitle,year,cursor.getLong(0),ranking,thumbnail)
+            //listofGames.add(game)
+        }
+        while (cursor.moveToNext()){
+            val date = cursor.getString(0)
+            val rankingPosition = cursor.getInt(1)
+            rankingList.add("$date%$rankingPosition")
+            //game = Game(title,originalTitle,year,cursor.getLong(0),ranking,thumbnail)
+            //listofGames.add(game)
         }
 
+        cursor.close()
+
+        return rankingList
+
+
+    }
 
     fun countGames():Int{
         var count = 0
@@ -140,6 +186,40 @@ class MyDBHandler(context: Context, name: String?, factory: SQLiteDatabase. Curs
         return cursor.count
     }
 
+    fun getGameList(mode: Int):MutableList<Game>{
+
+
+        val query = "SELECT * FROM $TABLE_GAMES"
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query, null)
+        var game: Game? = null
+
+        val listofGames: MutableList<Game> = mutableListOf()
+        if (cursor.moveToFirst()){
+            val title = cursor.getString(1)
+            val originalTitle = cursor.getString(2)
+            val year = cursor.getInt(3)
+            val ranking = cursor.getInt(4)
+            val thumbnail = cursor.getString(5)
+            game = Game(title,originalTitle,year,cursor.getLong(0),ranking,thumbnail)
+            listofGames.add(game)
+        }
+        while (cursor.moveToNext()){
+            val title = cursor.getString(1)
+            val originalTitle = cursor.getString(2)
+            val year = cursor.getInt(3)
+            val ranking = cursor.getInt(4)
+            val thumbnail = cursor.getString(5)
+            game = Game(title,originalTitle,year,cursor.getLong(0),ranking,thumbnail)
+            listofGames.add(game)
+        }
+
+        cursor.close()
+        //db.close()
+        return listofGames
+    }
+
+
     fun findGame(id: Long):Game?{
         val query = "SELECT * FROM $TABLE_GAMES WHERE $COLUMN_ID = $id"
         val db = this.writableDatabase
@@ -155,9 +235,32 @@ class MyDBHandler(context: Context, name: String?, factory: SQLiteDatabase. Curs
             game = Game(title,originalTitle,year,id,ranking,thumbnail)
         }
 
+        cursor.close()
         //db.close()
         return game
     }
+
+    fun findExpansion(id: Long):Game?{
+        val query = "SELECT * FROM $TABLE_EXTENSIONS WHERE $COLUMN_ID = $id"
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query, null)
+        var game: Game? = null
+
+        if (cursor.moveToFirst()){
+            val title = cursor.getString(1)
+            val originalTitle = cursor.getString(2)
+            val year = cursor.getInt(3)
+            val ranking = cursor.getInt(4)
+            val thumbnail = cursor.getString(5)
+            game = Game(title,originalTitle,year,id,ranking,thumbnail)
+        }
+
+        cursor.close()
+        //db.close()
+        return game
+    }
+
+
 
     fun deleteGame(id: Long):Boolean {
         var result = false
@@ -169,6 +272,23 @@ class MyDBHandler(context: Context, name: String?, factory: SQLiteDatabase. Curs
             cursor.close()
             result = true
         }
+        cursor.close()
+        //db.close()
+        return result
+    }
+
+
+    fun deleteExpansion(id: Long):Boolean {
+        var result = false
+        val query = "SELECT * FROM $TABLE_EXTENSIONS WHERE $COLUMN_ID = $id"
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query, null)
+        if (cursor.moveToFirst()) {
+            db.delete(TABLE_EXTENSIONS, COLUMN_ID + " = ?", arrayOf(id.toString()))
+            cursor.close()
+            result = true
+        }
+        cursor.close()
         //db.close()
         return result
     }
@@ -180,7 +300,7 @@ class MyDBHandler(context: Context, name: String?, factory: SQLiteDatabase. Curs
         var values = ContentValues()
         values.put("user", username)
 
-        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+        val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
         val currentDate = sdf.format(Date())
         values.put("lastsync", currentDate)
 
@@ -196,7 +316,7 @@ class MyDBHandler(context: Context, name: String?, factory: SQLiteDatabase. Curs
 
         var values = ContentValues()
 
-        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+        val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
         val currentDate = sdf.format(Date())
         values.put("lastsync", currentDate)
 
@@ -214,6 +334,7 @@ class MyDBHandler(context: Context, name: String?, factory: SQLiteDatabase. Curs
         val cursor = db.rawQuery(query, null)
         if (cursor.moveToFirst()) {
             val user = cursor.getString(1)
+            cursor.close()
             return user
         }
         //db.close()
@@ -227,8 +348,10 @@ class MyDBHandler(context: Context, name: String?, factory: SQLiteDatabase. Curs
         val cursor = db.rawQuery(query, null)
         if (cursor.moveToFirst()) {
             val user = cursor.getString(0)
+            cursor.close()
             return user
         }
+
         //db.close()
         return null
     }

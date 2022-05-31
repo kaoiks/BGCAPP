@@ -8,6 +8,8 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import java.io.File
+import java.lang.Exception
+import kotlin.system.exitProcess
 
 
 class MainActivity : AppCompatActivity() {
@@ -18,7 +20,10 @@ class MainActivity : AppCompatActivity() {
     lateinit var gameListButton: Button
     lateinit var extensionListButton: Button
 
+    lateinit var dateLastSyncMain: TextView
     lateinit var user: TextView
+
+
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,12 +33,21 @@ class MainActivity : AppCompatActivity() {
 
         extensionListButton = findViewById(R.id.extensionListButton)
 
+        cleanDataButton = findViewById(R.id.cleanButton)
+
+        user = findViewById(R.id.username)
 
 
+        dateLastSyncMain = findViewById(R.id.dateLastSyncMain)
         //deleteDatabase("gamesDB.db")
 
+
+
         if (databaseList().size == 0){
+
+
             val dbHandler = MyDBHandler( this ,null,null,1)
+
 
             dbHandler.close()
             val fragment = com.example.bgcapp.FragmentUser()
@@ -42,13 +56,25 @@ class MainActivity : AppCompatActivity() {
 
         val dbHandler = MyDBHandler( this ,null,null,1)
 
+        if (dbHandler.checkUser() == null){
+            val fragment = com.example.bgcapp.FragmentUser()
+            showFragmentUser(fragment)
+        }
 
-        user = findViewById(R.id.username)
-        user.text = dbHandler.checkUser()
+        try
+        {
+            user = findViewById(R.id.username)
+            user.text = dbHandler.checkUser()
 
-        gameListButton.setText("GAMES: ${dbHandler.countGames()}")
+            dateLastSyncMain.text = dbHandler.checkSync()
 
-        extensionListButton.setText("EXTENSIONS: ${dbHandler.countExtensions()}")
+            gameListButton.setText("GAMES: ${dbHandler.countGames()}")
+
+            extensionListButton.setText("EXPANSIONS: ${dbHandler.countExtensions()}")
+        }
+        catch (e: Exception){
+
+        }
 
         dbHandler.close()
         val policy = ThreadPolicy.Builder().permitAll().build()
@@ -61,6 +87,18 @@ class MainActivity : AppCompatActivity() {
             val fragment = com.example.bgcapp.FragmentSync()
             showFragment(fragment)
 
+        }
+
+        cleanDataButton.setOnClickListener{
+
+            deleteDatabase("gamesDB.db")
+            exitProcess(0)
+        }
+
+
+        gameListButton.setOnClickListener{
+            val fragment = com.example.bgcapp.FragmentGames()
+            showFragmentGames(fragment)
         }
 
     }
@@ -78,19 +116,41 @@ class MainActivity : AppCompatActivity() {
         fram.commit()
     }
 
+    fun showFragmentGames(fragment: FragmentGames){
+        val fram = supportFragmentManager.beginTransaction()
+        fram.replace(R.id.fragment_main,fragment)
+        fram.addToBackStack("listGames")
+        fram.commit()
+    }
+
+
+    fun refreshData(){
+
+        val dbHandler = MyDBHandler( this ,null,null,1)
+        user.text = dbHandler.checkUser()
+
+        dateLastSyncMain.text = dbHandler.checkSync()
+
+        gameListButton.setText("GAMES: ${dbHandler.countGames()}")
+
+        extensionListButton.setText("EXPANSIONS: ${dbHandler.countExtensions()}")
+
+        dbHandler.close()
+
+
+    }
+
     override fun onBackPressed() {
         if(supportFragmentManager.backStackEntryCount == 0){
             this.finish()
         }
         else{
             supportFragmentManager.popBackStack()
+            refreshData()
         }
     }
 
-    fun loadProfile(){
-        //val fileContent = File("profile")
 
-    }
 
 
 

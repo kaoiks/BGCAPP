@@ -1,6 +1,7 @@
 package com.example.bgcapp
 
 import android.content.Context
+import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -34,6 +35,9 @@ class FragmentUser: Fragment() {
     lateinit var usernameText: EditText
     lateinit var user: TextView
 
+
+    private var task = loadGamesExtensionsTask()
+
     override fun getContext(): Context? {
         return super.getContext()
     }
@@ -46,7 +50,7 @@ class FragmentUser: Fragment() {
 
             continueButton = view.findViewById(R.id.submitUserButton)
             usernameText = view.findViewById(R.id.editTextTextPersonName)
-            user = view.findViewById(R.id.username)
+            //user = view.findViewById(R.id.username)
 
             continueButton.setOnClickListener{
 
@@ -56,10 +60,13 @@ class FragmentUser: Fragment() {
                     if(checkUserExists(usernameText.text.toString())){
                         val dbHandler = MyDBHandler( requireContext() ,null,null,1)
                         dbHandler.setUser(usernameText.text.toString())
-                        user.text = usernameText.text.toString()
 
-                        activity?.onBackPressed()
+                        task.execute()
 
+
+                        //activity?.onBackPressed()
+
+                        //activity?.startActivityFromFragment(this,MainActivity().intent,0)
                     }
                 }
 
@@ -149,6 +156,48 @@ class FragmentUser: Fragment() {
 
 
 
+
+    }
+
+
+
+    private  inner class loadGamesExtensionsTask: AsyncTask<String, Int, String>(){
+
+        override fun onPreExecute() {
+            super.onPreExecute()
+
+
+        }
+
+        override fun doInBackground(vararg p0: String?): String {
+
+            //syncButton.text = "SYNCHRONIZING"
+            publishProgress(0)
+
+            WebDataLoader(requireContext()).loadUserDataGames()
+            publishProgress(5)
+            WebDataLoader(requireContext()).loadUserDataExtensions()
+
+            publishProgress(10)
+
+            return "Finished"
+        }
+
+        override fun onProgressUpdate(vararg values: Int?) {
+            super.onProgressUpdate(*values)
+
+
+        }
+
+        override fun onPostExecute(result: String?) {
+            super.onPostExecute(result)
+
+            Toast.makeText(activity,"Synchronization completed",Toast.LENGTH_SHORT).show()
+            val intent = requireActivity().intent
+            requireActivity().finish()
+            startActivity(intent)
+            //Toast.makeText(activity,"Synchronization completed",Toast.LENGTH_SHORT).show()
+        }
 
     }
 

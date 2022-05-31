@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layoutGameList"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#333947"
+
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/gameName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:text="Game Name"
+        android:textColor="@color/white"
+
+
+        android:textSize="50dp">
+
+
+    </TextView>
+    <ScrollView
+        android:id="@+id/scrollPostions"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+
+        android:layout_marginTop="75dp"
+        >
+        <TableLayout
+            android:id="@+id/tableHistory"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            android:isScrollContainer="true">
+
+
+
+
+        </TableLayout>
+
+
+
+    </ScrollView>
+
+
+</LinearLayout>
