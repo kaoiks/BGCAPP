@@ -220,6 +220,41 @@ class MyDBHandler(context: Context, name: String?, factory: SQLiteDatabase. Curs
     }
 
 
+    fun getExpansionList(mode: Int):MutableList<Game>{
+
+
+        val query = "SELECT * FROM $TABLE_EXTENSIONS"
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query, null)
+        var game: Game? = null
+
+        val listofGames: MutableList<Game> = mutableListOf()
+        if (cursor.moveToFirst()){
+            val title = cursor.getString(1)
+            val originalTitle = cursor.getString(2)
+            val year = cursor.getInt(3)
+            val ranking = cursor.getInt(4)
+            val thumbnail = cursor.getString(5)
+            game = Game(title,originalTitle,year,cursor.getLong(0),ranking,thumbnail)
+            listofGames.add(game)
+        }
+        while (cursor.moveToNext()){
+            val title = cursor.getString(1)
+            val originalTitle = cursor.getString(2)
+            val year = cursor.getInt(3)
+            val ranking = cursor.getInt(4)
+            val thumbnail = cursor.getString(5)
+            game = Game(title,originalTitle,year,cursor.getLong(0),ranking,thumbnail)
+            listofGames.add(game)
+        }
+
+        cursor.close()
+        //db.close()
+        return listofGames
+    }
+
+
+
     fun findGame(id: Long):Game?{
         val query = "SELECT * FROM $TABLE_GAMES WHERE $COLUMN_ID = $id"
         val db = this.writableDatabase

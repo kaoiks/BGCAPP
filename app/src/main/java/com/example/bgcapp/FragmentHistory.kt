@@ -63,7 +63,7 @@ class FragmentHistory(): Fragment() {
         gameName.text = dbHandler.findGame(gameId.toLong())?.originalTitle.toString()
         showHistoricalRanking(dbHandler.getHistoryofGame(gameId.toLong()))
 
-        //showGames()
+
 
 
 
@@ -71,6 +71,9 @@ class FragmentHistory(): Fragment() {
         return view
 
     }
+
+
+
 
 
     fun showHistoricalRanking(rankingList: MutableList<String>){
@@ -164,19 +167,6 @@ class FragmentHistory(): Fragment() {
         //tv4.setBackgroundResource(R.drawable.border)
         tv4.setBackgroundColor(Color.parseColor("#7703fc"))
 
-//        val iv = ImageView(requireContext())
-//        iv.layoutParams = TableRow.LayoutParams(
-//            200,
-//            250
-//        )
-//        iv.setPadding(25,25,25,25)
-//        iv.setBackgroundResource(R.drawable.border)
-//        //iv.adjustViewBounds = true
-//        //iv.setImageResource()
-//
-//        val url =  URL(row.thumbnail)
-//        val bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream())
-//        iv.setImageBitmap(bitmap)
 
         val tr = TableRow(requireContext())
         val trParams = TableLayout.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
@@ -190,12 +180,6 @@ class FragmentHistory(): Fragment() {
         //tr.id = row?.bggId.toInt()
 
         tableHistory.addView(tr,trParams)
-
-
-
-
-
-
 
 
         for (i in 0 until rows) {
@@ -220,28 +204,6 @@ class FragmentHistory(): Fragment() {
             tv2.setBackgroundResource(R.drawable.border)
 
 
-
-
-
-
-
-
-
-
-
-//            val iv = ImageView(requireContext())
-//            iv.layoutParams = TableRow.LayoutParams(
-//                200,
-//                250
-//            )
-//            iv.setPadding(25,25,25,25)
-//            iv.setBackgroundResource(R.drawable.border)
-//            //iv.adjustViewBounds = true
-//            //iv.setImageResource()
-//
-//            val url =  URL(row.)
-//            val bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream())
-//            iv.setImageBitmap(bitmap)
 
             val tr = TableRow(requireContext())
             val trParams = TableLayout.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,

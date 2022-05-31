@@ -7,10 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -34,7 +31,7 @@ class FragmentUser: Fragment() {
     lateinit var continueButton: Button
     lateinit var usernameText: EditText
     lateinit var user: TextView
-
+    lateinit var progressBarUser: ProgressBar
 
     private var task = loadGamesExtensionsTask()
 
@@ -51,6 +48,9 @@ class FragmentUser: Fragment() {
             continueButton = view.findViewById(R.id.submitUserButton)
             usernameText = view.findViewById(R.id.editTextTextPersonName)
             //user = view.findViewById(R.id.username)
+
+            progressBarUser = view.findViewById(R.id.progressBarUser)
+
 
             continueButton.setOnClickListener{
 
@@ -165,7 +165,7 @@ class FragmentUser: Fragment() {
 
         override fun onPreExecute() {
             super.onPreExecute()
-
+            progressBarUser.visibility = View.VISIBLE
 
         }
 
@@ -192,7 +192,7 @@ class FragmentUser: Fragment() {
         override fun onPostExecute(result: String?) {
             super.onPostExecute(result)
 
-            Toast.makeText(activity,"Synchronization completed",Toast.LENGTH_SHORT).show()
+            progressBarUser.visibility = View.INVISIBLE
             val intent = requireActivity().intent
             requireActivity().finish()
             startActivity(intent)

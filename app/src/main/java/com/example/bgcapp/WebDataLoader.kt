@@ -320,7 +320,7 @@ class WebDataLoader(val context: Context) {
         for (expansion in expansions){
             if (expansionIds.contains(expansion.bggId)) {continue}
             expansionIds.add(expansion.bggId)
-            if(dbHandler.findGame(expansion.bggId) == null){
+            if(dbHandler.findExpansion(expansion.bggId) == null){
 
                 dbHandler.addExpansion(expansion)
             }

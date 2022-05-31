@@ -35,14 +35,14 @@ import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.concurrent.thread
 
 
-class FragmentGames: Fragment() {
+class FragmentExpansions: Fragment() {
 
 //    lateinit var continueButton: Button
 //    lateinit var usernameText: EditText
 //    lateinit var user: TextView
 
 
-    lateinit var tableGames: TableLayout
+    lateinit var tableExpansions: TableLayout
 
     override fun getContext(): Context? {
         return super.getContext()
@@ -53,10 +53,10 @@ class FragmentGames: Fragment() {
 
 
         val view: View = inflater.inflate(R.layout.fragment_gamelist,container,false)
-        tableGames = view.findViewById(R.id.tableGames)
+        tableExpansions = view.findViewById(R.id.tableGames)
         val dbHandler = MyDBHandler( requireContext() ,null,null,1)
 
-        showGames(dbHandler.getGameList(0))
+        showGames(dbHandler.getExpansionList(0))
         dbHandler.close()
 
 
@@ -79,7 +79,7 @@ class FragmentGames: Fragment() {
 
 
 
-        val rows = dbHandler.countGames()
+        val rows = dbHandler.countExtensions()
         //val gameList =
 
 
@@ -178,10 +178,10 @@ class FragmentGames: Fragment() {
         tr.addView(tv2)
         tr.addView(tv4)
         tr.addView(tv)
-        tr.addView(tv3)
+        //tr.addView(tv3)
         //tr.id = row?.bggId.toInt()
 
-        tableGames.addView(tr,trParams)
+        tableExpansions.addView(tr,trParams)
 
 
 
@@ -275,67 +275,16 @@ class FragmentGames: Fragment() {
             tr.addView(tv2)
             tr.addView(iv)
             tr.addView(tv)
-            tr.addView(tv3)
+            //tr.addView(tv3)
             tr.id = row?.bggId.toInt()
-            tr.setOnClickListener{
-                showFragment(FragmentHistory(tr.id))
-                //findNavController().navigate(R.id.action_fragmentGames_to_fragmentHistory)
-            }
-            tableGames.addView(tr,trParams)
+
+            tableExpansions.addView(tr,trParams)
 
 
         }
 
 
     }
-
-    fun showFragment(fragment: FragmentHistory){
-        val fram = requireActivity().supportFragmentManager.beginTransaction()
-
-        fram.replace(R.id.fragment_main,fragment,"ES")
-        fram.addToBackStack("history")
-        fram.commit()
-    }
-
-
-//    private  inner class loadGamesExtensionsTask: AsyncTask<String, Int, String>(){
-//
-//        override fun onPreExecute() {
-//            super.onPreExecute()
-//
-//
-//        }
-//
-//        override fun doInBackground(vararg p0: String?): String {
-//
-//            //syncButton.text = "SYNCHRONIZING"
-//            publishProgress(0)
-//
-//            WebDataLoader(requireContext()).loadUserDataGames()
-//            publishProgress(5)
-//            WebDataLoader(requireContext()).loadUserDataExtensions()
-//
-//            publishProgress(10)
-//
-//            return "Finished"
-//        }
-//
-//        override fun onProgressUpdate(vararg values: Int?) {
-//            super.onProgressUpdate(*values)
-//
-//        }
-//
-//        override fun onPostExecute(result: String?) {
-//            super.onPostExecute(result)
-//
-//            Toast.makeText(activity,"Synchronization completed",Toast.LENGTH_SHORT).show()
-//        }
-//
-//    }
-
-
-
-
 
 
 }

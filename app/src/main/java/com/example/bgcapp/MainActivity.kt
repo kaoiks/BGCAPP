@@ -1,11 +1,17 @@
 package com.example.bgcapp
 
 import android.annotation.SuppressLint
+import android.os.AsyncTask
 import android.os.Bundle
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
+import android.util.Log
+import android.view.View
 import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import java.io.File
 import java.lang.Exception
@@ -23,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var dateLastSyncMain: TextView
     lateinit var user: TextView
 
+    lateinit var progressBar2: ProgressBar
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +44,7 @@ class MainActivity : AppCompatActivity() {
 
         user = findViewById(R.id.username)
 
+        progressBar2 = findViewById(R.id.progressBar2)
 
         dateLastSyncMain = findViewById(R.id.dateLastSyncMain)
         //deleteDatabase("gamesDB.db")
@@ -91,15 +99,40 @@ class MainActivity : AppCompatActivity() {
 
         cleanDataButton.setOnClickListener{
 
-            deleteDatabase("gamesDB.db")
-            exitProcess(0)
+            val alertDialogBuilder = AlertDialog.Builder(this)
+            alertDialogBuilder.setMessage("Are you sure?").setCancelable(true)
+                .setPositiveButton("Yes") { dialog, id ->
+                    deleteDatabase("gamesDB.db")
+                    exitProcess(0)
+                }.setNegativeButton("No"){dialog, id ->
+                    dialog.dismiss()
+
+
+                }
+            val alert = alertDialogBuilder.create()
+            alert.show()
+
+            //deleteDatabase("gamesDB.db")
+            //exitProcess(0)
         }
 
 
         gameListButton.setOnClickListener{
-            val fragment = com.example.bgcapp.FragmentGames()
-            showFragmentGames(fragment)
+
+
+            val task =  loadGamesListTask()
+            task.execute()
+
         }
+        extensionListButton.setOnClickListener{
+
+            val task =  loadExpansionListTask()
+            task.execute()
+
+        }
+
+
+
 
     }
     fun showFragment(fragment: FragmentSync){
@@ -122,10 +155,14 @@ class MainActivity : AppCompatActivity() {
         fram.addToBackStack("listGames")
         fram.commit()
     }
-
+    fun showFragmentExpansions(fragment: FragmentExpansions){
+        val fram = supportFragmentManager.beginTransaction()
+        fram.replace(R.id.fragment_main,fragment)
+        fram.addToBackStack("listExpansions")
+        fram.commit()
+    }
 
     fun refreshData(){
-
         val dbHandler = MyDBHandler( this ,null,null,1)
         user.text = dbHandler.checkUser()
 
@@ -136,23 +173,87 @@ class MainActivity : AppCompatActivity() {
         extensionListButton.setText("EXPANSIONS: ${dbHandler.countExtensions()}")
 
         dbHandler.close()
-
-
     }
 
     override fun onBackPressed() {
+
+        Log.d("APP","BACK PRESSED + ${supportFragmentManager.backStackEntryCount}")
         if(supportFragmentManager.backStackEntryCount == 0){
             this.finish()
         }
+
         else{
             supportFragmentManager.popBackStack()
-            refreshData()
+            if (supportFragmentManager.backStackEntryCount == 1) {
+                refreshData()
+            }
         }
     }
 
 
+    private  inner class loadExpansionListTask: AsyncTask<String, Int, String>(){
+
+        override fun onPreExecute() {
+            super.onPreExecute()
+            progressBar2.visibility = View.VISIBLE
 
 
+        }
+
+        override fun doInBackground(vararg p0: String?): String {
+
+            //syncButton.text = "SYNCHRONIZING"
+            val fragment = com.example.bgcapp.FragmentExpansions()
+            showFragmentExpansions(fragment)
+
+            return "Finished"
+        }
+
+        override fun onProgressUpdate(vararg values: Int?) {
+            super.onProgressUpdate(*values)
+
+
+        }
+
+        override fun onPostExecute(result: String?) {
+            super.onPostExecute(result)
+            progressBar2.visibility = View.INVISIBLE
+
+        }
+
+    }
+
+    private  inner class loadGamesListTask: AsyncTask<String, Int, String>(){
+
+        override fun onPreExecute() {
+            super.onPreExecute()
+            progressBar2.visibility = View.VISIBLE
+
+
+        }
+
+        override fun doInBackground(vararg p0: String?): String {
+
+            //syncButton.text = "SYNCHRONIZING"
+            val fragment = com.example.bgcapp.FragmentGames()
+            showFragmentGames(fragment)
+
+            return "Finished"
+        }
+
+        override fun onProgressUpdate(vararg values: Int?) {
+            super.onProgressUpdate(*values)
+
+
+        }
+
+        override fun onPostExecute(result: String?) {
+            super.onPostExecute(result)
+            progressBar2.visibility = View.INVISIBLE
+
+        }
+
+    }
 
 
 
